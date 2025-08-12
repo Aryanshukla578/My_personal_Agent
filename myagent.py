@@ -8,7 +8,7 @@ load_dotenv()
 
 # Get environment variables
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
+OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL")
 MODEL_NAME = os.getenv("MODEL_NAME", "gpt-oss-20b")
 
 if not OPENROUTER_API_KEY:

@@ -1,0 +1,9 @@
+streamlit
+openai
+python-dotenv
+requests
+numpy
+pandas
+pillow
+protobuf
+tenacity

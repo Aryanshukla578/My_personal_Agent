@@ -2,14 +2,12 @@ import sqlite3
 import os
 import requests
 from dotenv import load_dotenv
+import streamlit as st
 
-# Load environment variables from .env file
-load_dotenv()
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY") or st.secrets["OPENROUTER_API_KEY"]
+OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL") or st.secrets["OPENROUTER_BASE_URL"]
+MODEL_NAME = os.getenv("MODEL_NAME") or st.secrets["MODEL_NAME"]
 
-# Get environment variables
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL")
-MODEL_NAME = os.getenv("MODEL_NAME", "gpt-oss-20b")
 
 if not OPENROUTER_API_KEY:
     raise ValueError("❌ OPENROUTER_API_KEY is missing! Please set it in your .env file.")

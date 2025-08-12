@@ -4,16 +4,25 @@ import requests
 from dotenv import load_dotenv
 import streamlit as st
 
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY") or st.secrets["OPENROUTER_API_KEY"]
-OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL") or st.secrets["OPENROUTER_BASE_URL"]
-MODEL_NAME = os.getenv("MODEL_NAME") or st.secrets["MODEL_NAME"]
+load_dotenv()  # load .env locally, ignored in deploy
 
+# Safely load secrets with fallback, no crash if missing
+def get_secret(key, default=None):
+    try:
+        return os.getenv(key) or st.secrets[key]
+    except KeyError:
+        return default
+
+OPENROUTER_API_KEY = get_secret("OPENROUTER_API_KEY")
+OPENROUTER_BASE_URL = get_secret("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
+MODEL_NAME = get_secret("MODEL_NAME", "gpt-oss-20b")
 
 if not OPENROUTER_API_KEY:
-    raise ValueError("❌ OPENROUTER_API_KEY is missing! Please set it in your .env file.")
+    raise ValueError("❌ OPENROUTER_API_KEY is missing! Set it in .env or Streamlit Secrets.")
+
+print(f"DEBUG: Using API Key: {OPENROUTER_API_KEY[:5]}...")  # For debugging; remove later
 
 def init_db():
-    """Initialize SQLite database for storing chat history."""
     conn = sqlite3.connect("agent.db")
     cursor = conn.cursor()
     cursor.execute("""
@@ -27,7 +36,6 @@ def init_db():
     conn.close()
 
 def get_ai_response(user_input):
-    """Call OpenRouter API and return AI-generated text."""
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json"
@@ -42,7 +50,7 @@ def get_ai_response(user_input):
 
     try:
         response = requests.post(
-            f"{OPENROUTER_BASE_URL}/chat/completions", 
+            f"{OPENROUTER_BASE_URL}/chat/completions",
             headers=headers, json=payload, timeout=30
         )
         response.raise_for_status()
@@ -59,7 +67,6 @@ def get_ai_response(user_input):
         return f"[Error: {e}]"
 
 def process_input(user_input):
-    """Process user input, get AI response, and store in DB."""
     response = get_ai_response(user_input)
 
     try:
@@ -77,7 +84,5 @@ def process_input(user_input):
 
     return response
 
-# ✅ Add this wrapper for Streamlit
 def process_user_input(text):
-    """Wrapper function for Streamlit to keep naming consistent."""
     return process_input(text)
